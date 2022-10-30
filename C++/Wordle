@@ -1,0 +1,184 @@
+#include <iostream>
+#include <fstream>
+#include <ctime>
+#include <string>
+#include <cstdlib>
+#include <vector>
+using namespace std;
+
+vector<char> uniqueElements(vector<char> vecIn) {
+
+	vector<char> vecOut;
+	bool copy = false;
+
+
+	for (int i = 0; i < vecIn.size(); i++) {
+
+		char a = vecIn[i];
+		char b;
+
+		for (int j = 0; j < vecIn.size(); j++) {
+			if (i == j) {
+				continue;
+			}
+			b = vecIn[j];
+			if (a == b) {
+				vecIn[j] = '-';
+
+			}
+
+		}
+
+		vecOut.push_back(a);
+
+	}
+
+	return vecOut;
+
+}
+
+void guess(string word, bool& correct) {
+
+	vector<char> wordle(word.begin(), word.end());
+	bool used = false;
+	bool letterFound = false;
+	bool realWord = false;
+
+	string guess;
+	
+
+	
+
+	while (!realWord) {
+		std::cout << "What is your guess?\n" << endl;
+		cin >> guess;
+		if (guess.length() < 5) {
+			std::cout << "Sorry, that word is too short. Try again!" << endl;
+			continue;
+		}
+		else if (guess.length() > 5) {
+			std::cout << "Sorry, that word is too long. Try again!" << endl;
+			continue;
+		}
+
+		ifstream fin;
+		fin.open("C:\\Users\\cader\\word_list.txt");
+		string comp;
+
+		while (!fin.eof()) {
+			fin >> comp;
+			if (comp == guess) {
+				realWord = true;
+			}
+		}
+		fin.close(); 
+
+		if (!realWord) {
+			std::cout << "Sorry, that isn't a real word. Try again." << endl;
+		}
+	}
+
+	
+
+	
+
+	vector<char> input(guess.begin(), guess.end());
+	vector<char> output{ '-', '-', '-', '-', '-' };
+	vector<char> unique(uniqueElements(input));
+	if (unique.size() != input.size()) {
+		for (int i = unique.size(); i < input.size(); i++) {
+			unique.push_back('-');
+		}
+	}
+
+	if (guess != word) {
+		std::cout << "\nSorry that is incorrect!" << endl;
+		for (int i = wordle.size()-1; i >= 0; i--) {
+			used = false;
+			letterFound = false;
+			if (wordle[i] == input[i]) {
+				output[i] = toupper(input[i]);
+				input[i] = ' ';
+				wordle[i] = ' ';
+				letterFound = true;
+			}
+
+
+
+
+
+			else{
+				if (unique.size() == input.size()) {
+					for (int j = 0; j < wordle.size(); j++) {
+						if (wordle[j] == unique[i] && !used) {
+							output[i] = unique[i];
+							used = true;
+							letterFound = true;
+						}
+					}
+				}
+
+				
+
+			}
+			if (!letterFound) {
+				output[i] = '-';
+			}
+
+		} 
+		
+		correct = false;
+
+		for (int i = 0; i < output.size(); i++) {
+			cout << output[i];
+		}
+		std::cout << endl;
+		return;
+	}
+	correct = true;
+	return;
+}
+
+int main() {
+	double num;
+	string word; 
+	bool correct = false;
+
+	cout << "Welcome to Wordle! Ready to play?" << endl;
+
+	srand(time(NULL));
+	num = double(rand()) / double(RAND_MAX) * 12947;
+
+	ifstream fin;
+	fin.open("C:\\Users\\cader\\word_list.txt");
+
+	int i = 0;
+	while (i < int(num)) {
+		fin >> word;
+		i++;
+	}
+
+	fin.close(); 
+
+	
+
+	for (int i = 5; i >= 0; i--) {
+		cout << "You have " << i + 1 << " guesses left." << endl;
+		guess(word, correct);
+		
+		if (correct) {
+			std::cout << "That is correct! Congrats!" << endl;
+			break;
+		}
+	}
+	
+	if (!correct) {
+		std::cout << "Sorry, you failed to get the wordle! The word was " << word << ". Try again!" << endl;
+	}
+	
+
+	
+	
+
+	return 0;
+}
